@@ -40,15 +40,25 @@ namespace GrupoA
             Left
         }
         
+        public class CellNode
+        {
+            CellInfo cellInfo;
+            int acumulated;
+            int value;
+            CellInfo parent;
+        }
+
         private WorldInfo _world;
-        private Random _random;
+        //private Random _random;
         private Directions _currentDirection = Directions.None;
         private int stepCount = 0;
-        
+        private Queue<CellNode> CP; // Cola de prioridad
+        private Queue<CellNode> visitados;
+
         public void Initialize(WorldInfo worldInfo)
         {
             _world = worldInfo;
-            _random = new Random();
+            //_random = new Random();
         }
 
         public CellInfo[] GetPath(CellInfo startNode, CellInfo targetNode)
@@ -74,61 +84,32 @@ namespace GrupoA
             return path;
         }
         
-        public CellInfo GetNeighbour(CellInfo current, Directions direction)
+        public CellInfo[] GetNeighbours(CellInfo current) //Esta función te añade los vecinos a la cola en el orden que queremos.
         {
-            CellInfo neighbour;
-            
-            switch(direction)
-            {
-                case Directions.Up:
-                    neighbour = _world[current.x, current.y - 1];
-                    break;
-                case Directions.Right:
-                    neighbour = _world[current.x + 1, current.y];
-                    break;
-                case Directions.Down:
-                    neighbour = _world[current.x, current.y + 1];
-                    break;
-                default:
-                    neighbour = _world[current.x - 1, current.y];
-                    break;
-            }
+            CellNode[] neighbours = new CellNode[4];
 
-            return neighbour;
+            neighbours[0].
+            neighbours[1] = _world[current.x + 1, current.y];
+            neighbours[2] = _world[current.x, current.y + 1];
+            neighbours[3] = _world[current.x - 1, current.y];
+
+            return neighbours;
         }
 
-        public CellInfo GetRandomNeighbour(CellInfo cell)
+        private void AddNegighbours(CellInfo[] neighbours)
         {
-            CellInfo neighbour;
+            float valueNode;
+            int i = 0;
+            while (neighbours[i].Walkable && i<=3)
+            {
 
-            do
-            {
-                Directions direction = GetRandomDirection();
-                neighbour = GetNeighbour(cell, direction);
-            } while (!neighbour.Walkable);
+                for(int j = 0; j < CP.Count; j++)
+                {
 
-            return neighbour;
-        }
-        
-        public Directions GetRandomDirection()
-        {
-            float randomFloat = (float) _random.NextDouble() * 100f;
-
-            if (randomFloat < 25f)
-            {
-                return Directions.Up;
-            }
-            if (randomFloat < 50f)
-            {
-                return Directions.Right;
-            }
-            if (randomFloat < 75f)
-            {
-                return Directions.Down;
-            }
-            {
-                return Directions.Left;
+                    if()
+                }
             }
         }
+
     }
 }
