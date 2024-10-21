@@ -44,16 +44,47 @@ namespace GrupoA
         {
             CellInfo cellInfo;
             int acumulated;
+            int heuristicValue;
             int value;
             CellInfo parent;
+
+            public void setCellInfo(CellInfo cel)
+            {
+                this.cellInfo = cel;
+            }
+            public CellInfo getCellInfo()
+            {
+                return this.cellInfo;
+            }
+            public void setParent(CellInfo parent)
+            {
+                this.parent = parent;
+            }
+            public int getValue()
+            {
+                return this.value;
+            }
+            public void setHeuristic(int value)
+            {
+                this.heuristicValue = value;
+            }
+            public void setAcumulate(int value)
+            {
+                this.acumulated = value;
+            }
+            public int getAcumulate()
+            {
+                return this.acumulated;
+            }
+            
         }
 
         private WorldInfo _world;
         //private Random _random;
         private Directions _currentDirection = Directions.None;
         private int stepCount = 0;
-        private Queue<CellNode> CP; // Cola de prioridad
-        private Queue<CellNode> visitados;
+        private List<CellNode> CP; // Cola de prioridad
+        private List<CellNode> visitados;
 
         public void Initialize(WorldInfo worldInfo)
         {
@@ -84,29 +115,41 @@ namespace GrupoA
             return path;
         }
         
-        public CellInfo[] GetNeighbours(CellInfo current) //Esta función te añade los vecinos a la cola en el orden que queremos.
+        public CellNode[] GetNeighbours(CellNode current) //Esta función te añade los vecinos a la cola en el orden que queremos.
         {
             CellNode[] neighbours = new CellNode[4];
 
-            neighbours[0].
-            neighbours[1] = _world[current.x + 1, current.y];
-            neighbours[2] = _world[current.x, current.y + 1];
-            neighbours[3] = _world[current.x - 1, current.y];
+            neighbours[0].setCellInfo(_world[current.getCellInfo().x, current.getCellInfo().y-1]);
+            neighbours[1].setCellInfo(_world[current.getCellInfo().x + 1, current.getCellInfo().y]);
+            neighbours[2].setCellInfo(_world[current.getCellInfo().x, current.getCellInfo().y + 1]);
+            neighbours[3].setCellInfo(_world[current.getCellInfo().x - 1, current.getCellInfo().y]);
+
+            neighbours[0].setParent(current.getCellInfo());
+            neighbours[1].setParent(current.getCellInfo());
+            neighbours[2].setParent(current.getCellInfo());
+            neighbours[3].setParent(current.getCellInfo());
+
+            neighbours[0].setAcumulate(current.getAcumulate() + 1);
+            neighbours[1].setAcumulate(current.getAcumulate() + 1);
+            neighbours[2].setAcumulate(current.getAcumulate() + 1);
+            neighbours[3].setAcumulate(current.getAcumulate() + 1);
 
             return neighbours;
         }
 
-        private void AddNegighbours(CellInfo[] neighbours)
+        private void AddNegighbours(CellNode[] neighbours)
         {
             float valueNode;
             int i = 0;
-            while (neighbours[i].Walkable && i<=3)
+            while (neighbours[i].getCellInfo().Walkable && i<=neighbours.Length)
             {
 
                 for(int j = 0; j < CP.Count; j++)
                 {
-
-                    if()
+                    if (neighbours[i].getValue() < CP[j].getValue())
+                    {
+                        CP.Insert(j, neighbours[i]);
+                    }
                 }
             }
         }
