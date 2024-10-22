@@ -43,8 +43,8 @@ namespace GrupoA
         public class CellNode
         {
             CellInfo cellInfo;
-            int acumulated;
-            int heuristicValue;
+            int acumulated = 0;
+            int heuristicValue = 0;
             int value;
             CellInfo parent;
 
@@ -75,6 +75,10 @@ namespace GrupoA
             public int getAcumulate()
             {
                 return this.acumulated;
+            }
+            private void calculateValue()
+            {
+
             }
             
         }
