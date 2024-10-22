@@ -5138,12 +5138,12 @@ PrefabInstance:
     - target: {fileID: 730623413240138495, guid: b5edc09c705c52d449716a4e5ef0c91d,
         type: 3}
       propertyPath: navigationAgent
-      value: Grupo.SearchAgent
+      value: Navigation.Agent.BaseSearchAgent
       objectReference: {fileID: 0}
     - target: {fileID: 730623413240138495, guid: b5edc09c705c52d449716a4e5ef0c91d,
         type: 3}
       propertyPath: navigationClass
-      value: Grupo.Movement
+      value: GrupoA.Movement
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

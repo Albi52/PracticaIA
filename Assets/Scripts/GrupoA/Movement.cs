@@ -26,27 +26,40 @@ using System;
 using System.Collections.Generic;
 using Navigation.Interfaces;
 using Navigation.World;
+using Unity.VisualScripting;
+using UnityEngine.Rendering;
+using Unity;
+using UnityEngine;
 
 namespace GrupoA
 {
     public class Movement : INavigationAlgorithm
     {
-        public enum Directions
-        {
-            None,
-            Up,
-            Right,
-            Down,
-            Left
-        }
         
         public class CellNode
         {
             CellInfo cellInfo;
-            int acumulated = 0;
-            int heuristicValue = 0;
+            int acumulated;
+            int heuristicValue;
             int value;
-            CellInfo parent;
+            CellNode parent;
+
+            public CellNode(CellInfo nod)
+            {
+                acumulated = 0;
+                heuristicValue = 0;
+                value = 0;
+                cellInfo = nod;
+                parent = null;
+            }
+            public CellNode()
+            {
+                acumulated = 0;
+                heuristicValue = 0;
+                value = 0;
+                cellInfo = null;
+                parent = null;
+            }
 
             public void setCellInfo(CellInfo cel)
             {
@@ -56,9 +69,13 @@ namespace GrupoA
             {
                 return this.cellInfo;
             }
-            public void setParent(CellInfo parent)
+            public void setParent(CellNode parent)
             {
                 this.parent = parent;
+            }
+            public CellNode getParent()
+            {
+                return this.parent;
             }
             public int getValue()
             {
@@ -67,10 +84,13 @@ namespace GrupoA
             public void setHeuristic(int value)
             {
                 this.heuristicValue = value;
+                calculateValue();
+
             }
             public void setAcumulate(int value)
             {
                 this.acumulated = value;
+                calculateValue();
             }
             public int getAcumulate()
             {
@@ -78,84 +98,140 @@ namespace GrupoA
             }
             private void calculateValue()
             {
-
+                this.value = this.acumulated + this.heuristicValue; 
             }
             
         }
 
         private WorldInfo _world;
-        //private Random _random;
-        private Directions _currentDirection = Directions.None;
-        private int stepCount = 0;
         private List<CellNode> CP; // Cola de prioridad
         private List<CellNode> visitados;
 
         public void Initialize(WorldInfo worldInfo)
         {
             _world = worldInfo;
-            //_random = new Random();
+            CP = new List<CellNode>();
+            visitados = new List<CellNode>();
         }
 
         public CellInfo[] GetPath(CellInfo startNode, CellInfo targetNode)
         {
-            CellInfo[] path = new CellInfo[1];
-            
-            if(_currentDirection == Directions.None || stepCount==0)
+            CellNode current = new CellNode(startNode);
+            this.visitados.Add(current);
+
+            int count = 0;
+
+            while (current.getCellInfo()!=targetNode && count < 1000)
             {
-                _currentDirection = GetRandomDirection();
-                stepCount = UnityEngine.Random.Range(3, 8);
-            }
-            
-            CellInfo nextCell = GetNeighbour(startNode, _currentDirection);
-            while(!nextCell.Walkable)
-            {
-                _currentDirection = GetRandomDirection();
-                nextCell = GetNeighbour(startNode, _currentDirection);
-                stepCount = UnityEngine.Random.Range(3, 8);
+                this.AddNegighbours(current, targetNode);
+                current = this.GetNext();
+                count++;
+                if (count == 1000)
+                {
+                    Debug.Log("No sale del bucle Expansion");
+                }
+
             }
 
-            stepCount--;
-            path[0] = nextCell;
+            Stack<CellInfo> pathInverse = new Stack<CellInfo>();
+
+            count = 0;
+
+            while (current.getParent()!=null && count<1000)
+            {
+                pathInverse.Push(current.getCellInfo());
+                current = current.getParent();
+
+                count++;
+                if (count == 1000)
+                {
+                    Debug.Log("No sale del bucle Parent");
+                }
+            }
+
+            CellInfo[] path = new CellInfo[(int)pathInverse.Count];
+
+            for(int i = 0; i < pathInverse.Count; i++)
+            {
+                path[i] = pathInverse.Pop();
+            }
+
             return path;
         }
         
-        public CellNode[] GetNeighbours(CellNode current) //Esta función te añade los vecinos a la cola en el orden que queremos.
+        public CellNode[] GetNeighbours(CellNode current, CellInfo finish) //Esta función inicializa los nodos.
         {
             CellNode[] neighbours = new CellNode[4];
+
+            for( int i = 0;i < neighbours.Length; i++)
+            {
+                neighbours[i] = new CellNode();
+            }
 
             neighbours[0].setCellInfo(_world[current.getCellInfo().x, current.getCellInfo().y-1]);
             neighbours[1].setCellInfo(_world[current.getCellInfo().x + 1, current.getCellInfo().y]);
             neighbours[2].setCellInfo(_world[current.getCellInfo().x, current.getCellInfo().y + 1]);
             neighbours[3].setCellInfo(_world[current.getCellInfo().x - 1, current.getCellInfo().y]);
 
-            neighbours[0].setParent(current.getCellInfo());
-            neighbours[1].setParent(current.getCellInfo());
-            neighbours[2].setParent(current.getCellInfo());
-            neighbours[3].setParent(current.getCellInfo());
+            for (int i = 0; i < neighbours.Length; i++)
+            {
+                if (neighbours[i].getCellInfo().Walkable)
+                {
+                    neighbours[i].setParent(current);
 
-            neighbours[0].setAcumulate(current.getAcumulate() + 1);
-            neighbours[1].setAcumulate(current.getAcumulate() + 1);
-            neighbours[2].setAcumulate(current.getAcumulate() + 1);
-            neighbours[3].setAcumulate(current.getAcumulate() + 1);
+                    neighbours[i].setAcumulate(current.getAcumulate() + 1);
+
+                    neighbours[i].setHeuristic(Math.Abs(finish.x - neighbours[i].getCellInfo().x)
+                        + Math.Abs(finish.y - neighbours[i].getCellInfo().y));
+                }
+            }
 
             return neighbours;
         }
 
-        private void AddNegighbours(CellNode[] neighbours)
+        private void AddNegighbours(CellNode current, CellInfo finish)
         {
-            float valueNode;
             int i = 0;
-            while (neighbours[i].getCellInfo().Walkable && i<=neighbours.Length)
-            {
+            int count = 0;
+            CellNode[] neighbours = new CellNode[4];
+            neighbours = this.GetNeighbours(current, finish);
 
-                for(int j = 0; j < CP.Count; j++)
+            while (i<neighbours.Length && count<1000)
+            {
+                if (CP.Count == 0 && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
                 {
-                    if (neighbours[i].getValue() < CP[j].getValue())
+                    CP.Add(neighbours[i]);
+                }
+                else
+                {
+                    for (int j = 0; j < CP.Count; j++)
                     {
-                        CP.Insert(j, neighbours[i]);
+
+                        if (neighbours[i].getValue() < CP[j].getValue() && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
+                        {
+                            Debug.Log("Vecinito!");
+                            CP.Insert(j, neighbours[i]);
+                        }
                     }
                 }
+                i++;
+                count++;
+                if (count == 1000)
+                {
+                    Debug.Log("No sale del bucle AddNeighbours");
+                }
             }
+        }
+
+        private CellNode GetNext()
+        {
+            CellNode next = new CellNode();
+            next = CP[0];
+            CP.RemoveAt(0);
+
+            visitados.Add(next);
+
+            return next;
         }
 
     }

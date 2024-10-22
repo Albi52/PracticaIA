@@ -54,7 +54,7 @@ namespace Components
         {
             _navigator = (INavigationAlgorithm) Activator.CreateInstance(Type.GetType(navigationClass) 
                 ?? throw new InvalidOperationException());
-            _navigator.Initialize(WorldManager.Instance.WorldInfo);
+            _navigator.Initialize(WorldManager.Instance.WorldInfo); 
 
             _searchAgent = (INavigationAgent) Activator.CreateInstance(Type.GetType(navigationAgent) 
                 ?? throw new InvalidOperationException());
