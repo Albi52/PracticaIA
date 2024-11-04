@@ -59,6 +59,10 @@ namespace GrupoA
 
             while (current.getCellInfo()!=targetNode && count < 1000)
             {
+                if(current.getCellInfo()==null)
+                {
+                    int i = 0; 
+                }
                 this.AddNegighbours(current, targetNode);
 
                 Debug.Log(CP.Count);
@@ -144,26 +148,31 @@ namespace GrupoA
             {
                 Debug.Log("Contador CP cuando entro en add");
                 Debug.Log(CP.Count);
+                bool noenCP = true;
+                int j = 0;
                 if (CP.Count == 0 && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
                 {
-                    CP.Add(neighbours[i]);
-                    Debug.Log("Nodo añadido 1");
+
+                    CP.Insert(j, neighbours[i]);
+                    noenCP = false;
                 }
                 else
                 {
-                    for (int j = 0; j < CP.Count && count<4; j++)
+                    while (noenCP && j < CP.Count)//int j = 0; j < CP.Count && count<4; j++)
                     {
-
                         if (neighbours[i].getValue() < CP[j].getValue() && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
                         {
                             Debug.Log("Vecinito!");
                             CP.Insert(j, neighbours[i]);
                             Debug.Log("Nodo añadido 2");
+                            noenCP = false;
                         }
+                        j++;
                     }
-                    if (!CP.Contains(neighbours[i]) && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
+                    if (noenCP && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
                     {
                         CP.Add(neighbours[i]);
+                        noenCP = false;
                         Debug.Log("Nodo añadido 3");
                     }
                 }

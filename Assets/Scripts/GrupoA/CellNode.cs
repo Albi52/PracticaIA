@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GrupoA
 {
-    public class CellNode : MonoBehaviour
+    public class CellNode
     {
         CellInfo cellInfo;
         int acumulated;
@@ -68,6 +68,16 @@ namespace GrupoA
         private void calculateValue()
         {
             this.value = this.acumulated + this.heuristicValue;
+        }
+
+        public override string ToString()
+        {
+            return this.cellInfo.ToString();
+        }
+
+        public bool equals(CellNode left, CellNode right)
+        {
+            return left.getCellInfo() == right.getCellInfo();
         }
     }
 
