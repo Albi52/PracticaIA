@@ -486,7 +486,7 @@ Transform:
   m_GameObject: {fileID: 131587685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 4.5, y: 0, z: 17.21}
+  m_LocalPosition: {x: 5.17, y: 0, z: 16.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1946,13 +1946,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 628908307}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 5.51, y: 0, z: 6.72}
+  m_LocalRotation: {x: -0, y: 0.99999267, z: -0, w: 0.0038312147}
+  m_LocalPosition: {x: 7.75, y: 0, z: 9.47}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1767009672}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 179.561, z: 0}
 --- !u!64 &628908309
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2300,7 +2300,7 @@ Transform:
   m_GameObject: {fileID: 753527055}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.29, y: 0, z: 1.61}
+  m_LocalPosition: {x: 1.29, y: 0, z: 2.59}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5138,7 +5138,7 @@ PrefabInstance:
     - target: {fileID: 730623413240138495, guid: b5edc09c705c52d449716a4e5ef0c91d,
         type: 3}
       propertyPath: navigationAgent
-      value: Navigation.Agent.BaseSearchAgent
+      value: GrupoA.SearchAgent
       objectReference: {fileID: 0}
     - target: {fileID: 730623413240138495, guid: b5edc09c705c52d449716a4e5ef0c91d,
         type: 3}

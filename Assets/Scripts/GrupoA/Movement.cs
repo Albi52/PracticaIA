@@ -95,7 +95,9 @@ namespace GrupoA
 
             CellInfo[] path = new CellInfo[pathInverse.Count];
 
-            for(int i = 0; i < pathInverse.Count && count < 1000; i++, count ++)
+            int nodeNumber = pathInverse.Count;
+
+            for(int i = 0; i < nodeNumber && count < 1000; i++, count ++)
             {
                 path[i] = pathInverse.Pop();
                 if (count == 999)
@@ -146,43 +148,13 @@ namespace GrupoA
 
             for(int i = 0; i<neighbours.Length && count < 4; i++)
             {
-                Debug.Log("Contador CP cuando entro en add");
-                Debug.Log(CP.Count);
-                bool noenCP = true;
-                int j = 0;
-                if (CP.Count == 0 && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
+                if (neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
                 {
-
-                    CP.Insert(j, neighbours[i]);
-                    noenCP = false;
+                    CP.Add(neighbours[i]);
                 }
-                else
-                {
-                    while (noenCP && j < CP.Count)//int j = 0; j < CP.Count && count<4; j++)
-                    {
-                        if (neighbours[i].getValue() < CP[j].getValue() && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
-                        {
-                            Debug.Log("Vecinito!");
-                            CP.Insert(j, neighbours[i]);
-                            Debug.Log("Nodo añadido 2");
-                            noenCP = false;
-                        }
-                        j++;
-                    }
-                    if (noenCP && neighbours[i].getCellInfo().Walkable && !visitados.Contains(neighbours[i]))
-                    {
-                        CP.Add(neighbours[i]);
-                        noenCP = false;
-                        Debug.Log("Nodo añadido 3");
-                    }
-                }
-                if (count == 4)
-                {
-                    Debug.Log("No sale del bucle AddNeighbours");
-                }
-                i++;
-                count++;
             }
+
+            CP.Sort();
         }
 
         private CellNode GetNext()

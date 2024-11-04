@@ -1,11 +1,12 @@
 using Navigation.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GrupoA
 {
-    public class CellNode
+    public class CellNode : IComparable<CellNode>, IEquatable<CellNode>
     {
         CellInfo cellInfo;
         int acumulated;
@@ -75,9 +76,17 @@ namespace GrupoA
             return this.cellInfo.ToString();
         }
 
-        public bool equals(CellNode left, CellNode right)
+        public int CompareTo(CellNode other)
         {
-            return left.getCellInfo() == right.getCellInfo();
+            if (this.value == other.value) return 0;
+            else if (this.value > other.value) return 1;
+            else if (this.value < other.value) return -1;
+            else return 1;
+        }
+
+        public bool Equals(CellNode other)
+        {
+            return this.getCellInfo() == other.getCellInfo();
         }
     }
 
