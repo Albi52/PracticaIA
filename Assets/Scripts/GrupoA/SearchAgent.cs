@@ -24,6 +24,8 @@ namespace GrupoA
         private List<CellInfo> _objectives;
         private Queue<CellInfo> _path;
 
+        private bool cofresRecogidos = false;
+
         public void Initialize(WorldInfo worldInfo, INavigationAlgorithm navigationAlgorithm)
         {
             _worldInfo = worldInfo;
@@ -32,27 +34,50 @@ namespace GrupoA
 
         public Vector3? GetNextDestination(Vector3 position)
         {
-            if (_objectives == null)
-            {
-                CellInfo currentPosition = _worldInfo.FromVector3(position);
-                _objectives = GetDestinations(currentPosition).ToList<CellInfo>();
-                CurrentObjective = _objectives[_objectives.Count - 1];
-                NumberOfDestinations = _objectives.Count;
-            }
+            
+            CellInfo[] wordlZombies = _worldInfo.Enemies;
+            List<CellInfo> zombies = new List<CellInfo>();
 
-            if (_path == null || _path.Count == 0)
+            for (int i = 0; i < wordlZombies.Length; i++)
             {
-                CellInfo currentPosition = _worldInfo.FromVector3(position);
-                CellInfo[] path = _navigationAlgorithm.GetPath(currentPosition, CurrentObjective);
-                _path = new Queue<CellInfo>(path);
-
-                if(_objectives.Count > 1)
+                if (wordlZombies[i].Type == CellInfo.CellType.Enemy)
                 {
-                    _objectives.Remove(_objectives.Last<CellInfo>());
-                    CurrentObjective = _objectives[_objectives.Count - 1];
-                    NumberOfDestinations = _objectives.Count;
+                    zombies.Add(wordlZombies[i]);
                 }
             }
+
+            if (zombies.Count() != 0) 
+            {
+                CellInfo enemy1 = zombies[zombies.Count() - 1];
+                CurrentObjective = enemy1;
+
+                CellInfo currentPosition = _worldInfo.FromVector3(position);
+                this.GetCompletePathEnemies(currentPosition);
+
+                //Debug.Log(enemy[1] + ", " + enemy[0]);
+            }
+            else
+            {
+
+                if (_objectives == null && !cofresRecogidos)
+                {
+                    this.GetObjetives(position);
+                    cofresRecogidos = true;
+                }
+                else if (_objectives == null)
+                {
+                    _objectives.Add(_worldInfo.Exit);
+                }
+
+                if (_path == null || _path.Count == 0)
+                {
+                    CellInfo currentPosition = _worldInfo.FromVector3(position);
+                    
+                    _objectives = _objectives.OrderByDescending(p => (Math.Abs(p.x - currentPosition.x) + Math.Abs(p.y - currentPosition.y))).ToList();
+                    
+                    this.GetCompletePath(currentPosition);
+                }
+            }            
 
             if (_path.Count > 0)
             {
@@ -71,8 +96,47 @@ namespace GrupoA
                 targets.Add(_worldInfo.Targets[i]);
             }
             List<CellInfo> targetOrder = targets.OrderByDescending(p => (Math.Abs(p.x - position.x) + Math.Abs(p.y - position.y))).ToList();
-            targetOrder.Insert(0,_worldInfo.Exit);
+            //targetOrder.Insert(0,_worldInfo.Exit);
             return targetOrder.ToArray();
+        }
+
+        private CellInfo[] GetEnemies (CellInfo position)
+        {
+            List<CellInfo> enemies = new List<CellInfo>();
+            for (int i = 0; i < _worldInfo.Enemies.Length; i++)
+            {
+                enemies.Add(_worldInfo.Enemies[i]);
+            }
+            List<CellInfo> targetOrder = enemies.OrderByDescending(p => (Math.Abs(p.x - position.x) + Math.Abs(p.y - position.y))).ToList();
+
+            return targetOrder.ToArray();
+        }
+
+        private void GetObjetives(Vector3 position)
+        {
+            CellInfo currentPosition = _worldInfo.FromVector3(position);
+            _objectives = GetDestinations(currentPosition).ToList<CellInfo>();
+            CurrentObjective = _objectives[_objectives.Count - 1];
+            NumberOfDestinations = _objectives.Count;
+        }
+
+        private void GetCompletePath(CellInfo currentPosition)
+        {
+            CellInfo[] path = _navigationAlgorithm.GetPath(currentPosition, CurrentObjective);
+            _path = new Queue<CellInfo>(path);
+
+            if (_objectives.Count > 1)
+            {
+                _objectives.Remove(_objectives.Last<CellInfo>());
+                CurrentObjective = _objectives[_objectives.Count - 1];
+                NumberOfDestinations = _objectives.Count;
+            }
+        }
+
+        private void GetCompletePathEnemies (CellInfo currentPosition)
+        {
+            CellInfo[] path = _navigationAlgorithm.GetPath(currentPosition, CurrentObjective);
+            _path = new Queue<CellInfo>(path);
         }
 
     }
