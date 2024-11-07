@@ -49,8 +49,11 @@ namespace GrupoA
 
         public CellInfo[] GetPath(CellInfo startNode, CellInfo targetNode)
         {
-            Debug.Log("hola");
+            CP = new List<CellNode>();
+            visitados = new List<CellNode>();
+
             CellNode current = new CellNode(startNode);
+
             this.visitados.Add(current);
 
             int count = 0;
@@ -65,7 +68,6 @@ namespace GrupoA
                 }
                 this.AddNegighbours(current, targetNode);
 
-                Debug.Log(CP.Count);
                 current = this.GetNext();
                 count++;
                 if (count == 999)
@@ -132,9 +134,7 @@ namespace GrupoA
 
                 neighbours[i].setHeuristic(Math.Abs(finish.x - neighbours[i].getCellInfo().x)
                     + Math.Abs(finish.y - neighbours[i].getCellInfo().y));
-                Debug.Log("Vecino añadido");
             }
-            Debug.Log("Vecinos encontrados ~.~");
 
             return neighbours;
         }
@@ -143,8 +143,6 @@ namespace GrupoA
         {
             int count = 0;
             CellNode[] neighbours = this.GetNeighbours(current, finish);
-
-            Debug.Log("Ahora voy a añadir los nodos vecinos");
 
             for(int i = 0; i<neighbours.Length && count < 4; i++)
             {
@@ -167,8 +165,6 @@ namespace GrupoA
                 visitados.Add(next);
             }
 
-            Debug.Log("Nuevo nodo en visitados, nodos en visitados: ");
-            Debug.Log(visitados.Count);
 
             return next;
         }
