@@ -64,7 +64,7 @@ namespace GrupoA
                     this.GetObjetives(position);
                     cofresRecogidos = true;
                 }
-                else if (_objectives == null)
+                else if (_objectives.Count == 0)
                 {
                     _objectives.Add(_worldInfo.Exit);
                 }
@@ -72,7 +72,8 @@ namespace GrupoA
                 if (_path == null || _path.Count == 0)
                 {
                     CellInfo currentPosition = _worldInfo.FromVector3(position);
-                    
+
+                    Debug.Log(_objectives.Count);
                     _objectives = _objectives.OrderByDescending(p => (Math.Abs(p.x - currentPosition.x) + Math.Abs(p.y - currentPosition.y))).ToList();
                     
                     this.GetCompletePath(currentPosition);
@@ -125,11 +126,11 @@ namespace GrupoA
             CellInfo[] path = _navigationAlgorithm.GetPath(currentPosition, CurrentObjective);
             _path = new Queue<CellInfo>(path);
 
-            if (_objectives.Count > 1)
+            if (_objectives.Count > 0)
             {
-                _objectives.Remove(_objectives.Last<CellInfo>());
                 CurrentObjective = _objectives[_objectives.Count - 1];
                 NumberOfDestinations = _objectives.Count;
+                _objectives.Remove(_objectives.Last<CellInfo>());
             }
         }
 
