@@ -26,11 +26,7 @@ using System;
 using System.Collections.Generic;
 using Navigation.Interfaces;
 using Navigation.World;
-using Unity.VisualScripting;
-using UnityEngine.Rendering;
-using Unity;
 using UnityEngine;
-using GrupoA;
 
 namespace GrupoA
 {
@@ -54,13 +50,23 @@ namespace GrupoA
 
             CellNode current = new CellNode(startNode);
 
+            //Como el curret tiene que ser visitado siempre lo añadimos a visitados.
             this.visitados.Add(current);
 
             int count = 0;
 
-            
+            //En caso de que nuestro objetivo sea un zombie no vamos a hacer todo el camino, haremos una búsqueda por horizontes (con A*)
+            int horizonte = 1000;
 
-            while (current.getCellInfo()!=targetNode && count < 1000)
+            if(targetNode.Type == CellInfo.CellType.Enemy)
+            {
+                //Definimos cual es el horizonte, dependiendo de lo intricado que sea el laberinto.
+                horizonte = 220;
+            }
+
+            //En nuestro caso primero miramos los vecinos y luego accedemos al nodo.
+            //De esta forma no expandimos el nodo final pero sí llegamos a él y, además, expandimos el primero.
+            while (current.getCellInfo()!=targetNode && count < horizonte)
             {
                 if(current.getCellInfo()==null)
                 {
@@ -81,6 +87,8 @@ namespace GrupoA
 
             count = 0;
 
+            //Obtenemos el camino accediendo al padre del nodo final
+            //y al padre de este así hasta llegar al nodo inicial.
             while (current.getParent()!=null && count<1000)
             {
                 pathInverse.Push(current.getCellInfo());
@@ -99,6 +107,7 @@ namespace GrupoA
 
             int nodeNumber = pathInverse.Count;
 
+            //Invertimos el camino para que vaya de inicio a fin.
             for(int i = 0; i < nodeNumber && count < 1000; i++, count ++)
             {
                 path[i] = pathInverse.Pop();
@@ -110,10 +119,11 @@ namespace GrupoA
 
             return path;
         }
-        
-        public CellNode[] GetNeighbours(CellNode current, CellInfo finish) //Esta función inicializa los nodos.
+
+        //Expandimos los vecinos del nodo
+        public CellNode[] GetNeighbours(CellNode current, CellInfo finish)
         {
-            CellNode[] neighbours = new CellNode[4];
+            CellNode[] neighbours = new CellNode[4]; //Sabemos que cada nodo tiene 4 vecinos
 
             for( int i = 0;i < neighbours.Length; i++)
             {
@@ -126,6 +136,7 @@ namespace GrupoA
             neighbours[2].setCellInfo(_world[current.getCellInfo().x, current.getCellInfo().y + 1]);
             neighbours[3].setCellInfo(_world[current.getCellInfo().x - 1, current.getCellInfo().y]);
 
+            //Asignamos a los atributos de los nodos los valores correspondientes.
             for (int i = 0; i < neighbours.Length && count < 4; i++, count++)
             {
                 neighbours[i].setParent(current);
@@ -139,6 +150,7 @@ namespace GrupoA
             return neighbours;
         }
 
+        //Añadimos los vecinos válidos a la cola de prioridad.
         private void AddNegighbours(CellNode current, CellInfo finish)
         {
             int count = 0;
@@ -155,6 +167,7 @@ namespace GrupoA
             CP.Sort();
         }
 
+        //Sacamos el primer nodo de la cola de prioridad y lo metemos en la lista de visitados.
         private CellNode GetNext()
         {
             CellNode next = new CellNode();

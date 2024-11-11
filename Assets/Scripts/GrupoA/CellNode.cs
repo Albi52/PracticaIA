@@ -71,6 +71,7 @@ namespace GrupoA
             this.value = this.acumulated + this.heuristicValue;
         }
 
+        //Esta función nos permite ver mejor al hacer 
         public override string ToString()
         {
             return this.cellInfo.ToString();
