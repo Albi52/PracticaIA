@@ -1,14 +1,9 @@
 using Navigation.Interfaces;
 using Navigation.World;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
-using Unity;
-using UnityEngine.UIElements;
-using GrupoA;
-using UnityEditor;
 
 namespace GrupoA
 {
@@ -34,12 +29,13 @@ namespace GrupoA
 
         public Vector3? GetNextDestination(Vector3 position)
         {
-            
+            //Buscamos los zombies que quedan en el entorno
             CellInfo[] wordlZombies = _worldInfo.Enemies;
             List<CellInfo> zombies = new List<CellInfo>();
 
             for (int i = 0; i < wordlZombies.Length; i++)
             {
+                //Comprobamos que los zombies son zombies y no el lugar donde ha perecido uno
                 if (wordlZombies[i].Type == CellInfo.CellType.Enemy)
                 {
                     zombies.Add(wordlZombies[i]);
@@ -52,9 +48,8 @@ namespace GrupoA
                 CurrentObjective = enemy1;
 
                 CellInfo currentPosition = _worldInfo.FromVector3(position);
-                this.GetCompletePathEnemies(currentPosition);
 
-                //Debug.Log(enemy[1] + ", " + enemy[0]);
+                this.GetCompletePath(currentPosition);       
             }
             else
             {
@@ -73,10 +68,18 @@ namespace GrupoA
                 {
                     CellInfo currentPosition = _worldInfo.FromVector3(position);
 
-                    Debug.Log(_objectives.Count);
+                    //Ordenamos los objetivos según la distancia con el objetivo actual, así irá al más cercano.
                     _objectives = _objectives.OrderByDescending(p => (Math.Abs(p.x - currentPosition.x) + Math.Abs(p.y - currentPosition.y))).ToList();
                     
                     this.GetCompletePath(currentPosition);
+
+                    //Quitamos el objetivo al del cual ya tenemos el camino
+                    if (_objectives.Count > 0)
+                    {
+                        CurrentObjective = _objectives[_objectives.Count - 1];
+                        NumberOfDestinations = _objectives.Count;
+                        _objectives.Remove(_objectives.Last<CellInfo>());
+                    }
                 }
             }            
 
@@ -89,52 +92,29 @@ namespace GrupoA
             return CurrentDestination;
         }
 
-        private CellInfo[] GetDestinations(CellInfo position)
-        {
-            List<CellInfo> targets = new List<CellInfo>();
-            for (int i = 0; i < _worldInfo.Targets.Length; i++)
-            {
-                targets.Add(_worldInfo.Targets[i]);
-            }
-            List<CellInfo> targetOrder = targets.OrderByDescending(p => (Math.Abs(p.x - position.x) + Math.Abs(p.y - position.y))).ToList();
-            //targetOrder.Insert(0,_worldInfo.Exit);
-            return targetOrder.ToArray();
-        }
-
-        private CellInfo[] GetEnemies (CellInfo position)
-        {
-            List<CellInfo> enemies = new List<CellInfo>();
-            for (int i = 0; i < _worldInfo.Enemies.Length; i++)
-            {
-                enemies.Add(_worldInfo.Enemies[i]);
-            }
-            List<CellInfo> targetOrder = enemies.OrderByDescending(p => (Math.Abs(p.x - position.x) + Math.Abs(p.y - position.y))).ToList();
-
-            return targetOrder.ToArray();
-        }
-
+        //Esta función busca los cofres que tiene que recoger el agente y los mete en la lista de objetivos.
         private void GetObjetives(Vector3 position)
         {
             CellInfo currentPosition = _worldInfo.FromVector3(position);
-            _objectives = GetDestinations(currentPosition).ToList<CellInfo>();
+
+            List<CellInfo> targets = new List<CellInfo>();
+            for (int i = 0; i < _worldInfo.Targets.Length; i++)
+            {
+                if (_worldInfo.Targets[i].Type == CellInfo.CellType.Treasure)
+                {
+                    targets.Add(_worldInfo.Targets[i]);
+                }
+            }
+
+            //Ordenamos los objetivos para que vaya siempre al más cercano.
+            _objectives = targets.OrderByDescending(p => (Math.Max(Math.Abs(p.x - currentPosition.x), Math.Abs(p.y - currentPosition.y)))).ToList();
+
             CurrentObjective = _objectives[_objectives.Count - 1];
             NumberOfDestinations = _objectives.Count;
         }
 
+        //Llama a la función de GetPath y convierte la lista en en una cola para que sea el camino a seguir.
         private void GetCompletePath(CellInfo currentPosition)
-        {
-            CellInfo[] path = _navigationAlgorithm.GetPath(currentPosition, CurrentObjective);
-            _path = new Queue<CellInfo>(path);
-
-            if (_objectives.Count > 0)
-            {
-                CurrentObjective = _objectives[_objectives.Count - 1];
-                NumberOfDestinations = _objectives.Count;
-                _objectives.Remove(_objectives.Last<CellInfo>());
-            }
-        }
-
-        private void GetCompletePathEnemies (CellInfo currentPosition)
         {
             CellInfo[] path = _navigationAlgorithm.GetPath(currentPosition, CurrentObjective);
             _path = new Queue<CellInfo>(path);

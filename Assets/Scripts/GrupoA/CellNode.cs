@@ -8,15 +8,15 @@ namespace GrupoA
 {
     public class CellNode : IComparable<CellNode>, IEquatable<CellNode>
     {
-        CellInfo cellInfo;
-        int acumulated;
-        int heuristicValue;
-        int value;
-        CellNode parent;
+        CellInfo cellInfo; //Información de la celda
+        int acumulated; //Coste acumulado desde el nodo inicial
+        int heuristicValue; //Coste aproximado al nodo final
+        int value; //Suma de ambos costes
+        CellNode parent; //Padre del nodo
 
         public CellNode(CellInfo nod)
         {
-            this.acumulated = 0;
+            this.acumulated = 0; 
             this.heuristicValue = 0;
             this.value = 0;
             this.cellInfo = nod;
@@ -77,6 +77,7 @@ namespace GrupoA
             return this.cellInfo.ToString();
         }
 
+        //Los siguientes dos métodos se han creado con la intencion de poder usar métodos de las listas como Sort() y OrderBy
         public int CompareTo(CellNode other)
         {
             if (this.value == other.value) return 0;
